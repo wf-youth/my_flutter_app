@@ -4,6 +4,8 @@ void main() {
   runApp(const MyApp());
 }
 
+final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -12,120 +14,160 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Home',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple),
         useMaterial3: true,
+        primaryColor: const Color.fromARGB(255, 229, 115, 115),
+        fontFamily: 'Georgia',
+        textTheme: const TextTheme(
+          displayLarge: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+          titleLarge: TextStyle(fontSize: 28, fontStyle: FontStyle.italic),
+          bodyMedium: TextStyle(fontSize: 14, fontFamily: 'Hind'),
+        ),
       ),
-      home: const MyHomePage(title: 'Home'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() {
+    return _MyHomeState();
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class _MyHomeState extends State<MyHomePage> {
+  static final _controller = PageController(initialPage: 0);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-        ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                'You  1',
-              ),
+    return DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('home'),
+            actions: <Widget>[
+              IconButton(onPressed: () {}, icon: const Icon(Icons.search))
+            ],
+          ),
+          drawer: const Drawer(
+            child: MyDrawer(),
+          ),
+          bottomNavigationBar: const BottomNavBar(),
+          body: PageView(
+            onPageChanged: (value) {},
+            // 设置控制器
+            controller: _controller,
+            // 设置子项集
+            children: const [
+              Text('首页'),
+              Text('消息'),
+              Text('我的'),
             ],
           ),
         ));
   }
 }
 
+class BottomNavBar extends StatefulWidget {
+  const BottomNavBar({super.key});
 
+  @override
+  State<BottomNavBar> createState() => _BottomNavBarState();
+}
 
-// class _MyHomePageState extends State<MyHomePage> {
-//   int _counter = 0;
+class _BottomNavBarState extends State<BottomNavBar> {
+  int currentIndex = 0;
 
-//   void _incrementCounter() {
-//     setState(() {
-//       // This call to setState tells the Flutter framework that something has
-//       // changed in this State, which causes it to rerun the build method below
-//       // so that the display can reflect the updated values. If we changed
-//       // _counter without calling setState(), then the build method would not be
-//       // called again, and so nothing would appear to happen.
-//       _counter++;
-//     });
-//   }
+  void changeCurrent(int value) {
+    setState(() {
+      currentIndex = value;
+    });
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     // This method is rerun every time setState is called, for instance as done
-//     // by the _incrementCounter method above.
-//     //
-//     // The Flutter framework has been optimized to make rerunning build methods
-//     // fast, so that you can just rebuild anything that needs updating rather
-//     // than having to individually change instances of widgets.
-//     return Scaffold(
-//       appBar: AppBar(
-//         // TRY THIS: Try changing the color here to a specific color (to
-//         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-//         // change color while the other colors stay the same.
-//         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-//         // Here we take the value from the MyHomePage object that was created by
-//         // the App.build method, and use it to set our appbar title.
-//         title: Text(widget.title),
-//       ),
-//       body: Center(
-//         // Center is a layout widget. It takes a single child and positions it
-//         // in the middle of the parent.
-//         child: Column(
-//           // Column is also a layout widget. It takes a list of children and
-//           // arranges them vertically. By default, it sizes itself to fit its
-//           // children horizontally, and tries to be as tall as its parent.
-//           //
-//           // Column has various properties to control how it sizes itself and
-//           // how it positions its children. Here we use mainAxisAlignment to
-//           // center the children vertically; the main axis here is the vertical
-//           // axis because Columns are vertical (the cross axis would be
-//           // horizontal).
-//           //
-//           // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-//           // action in the IDE, or press "p" in the console), to see the
-//           // wireframe for each widget.
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             const Text(
-//               'You  1',
-//             ),
-//             Text(
-//               '$_counter',
-//               style: Theme.of(context).textTheme.headlineMedium,
-//             ),
-//           ],
-//         ),
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: _incrementCounter,
-//         tooltip: 'Increment',
-//         child: const Icon(Icons.add),
-//       ), // This trailing comma makes auto-formatting nicer for build methods.
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: currentIndex,
+      onTap: (value) {
+        changeCurrent(value);
+        _MyHomeState._controller.jumpToPage(currentIndex);
+      },
+      type: BottomNavigationBarType.fixed,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: '首页',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.article),
+          label: '列表',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.account_box_outlined),
+          label: '我的',
+        )
+      ],
+    );
+  }
+}
+
+//Drawer
+class MyDrawer extends StatelessWidget {
+  const MyDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.only(top: 0),
+      children: [
+        const CustomerInfo(),
+        ListTile(
+            title: const Text('用户反馈'),
+            trailing: const Icon(Icons.feedback),
+            onTap: () {}),
+        ListTile(
+            title: const Text('注销'),
+            trailing: const Icon(Icons.close),
+            onTap: () {})
+      ],
+    );
+  }
+}
+
+//个人信息 头像等
+class CustomerInfo extends StatefulWidget {
+  const CustomerInfo({super.key});
+
+  @override
+  State<CustomerInfo> createState() => _CustomerInfoState();
+}
+
+class _CustomerInfoState extends State<CustomerInfo> {
+  @override
+  Widget build(BuildContext context) {
+    return const UserAccountsDrawerHeader(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              //渐变位置
+              begin: Alignment.topRight, //右上
+              end: Alignment.bottomLeft, //左下
+              stops: [
+            0.0,
+            1.0
+          ], //[渐变起始点, 渐变结束点]
+              //渐变颜色[始点颜色, 结束颜色]
+              colors: [
+            Color.fromARGB(255, 229, 115, 115),
+            Color.fromARGB(255, 183, 170, 240)
+          ])),
+      accountName: Text('测试'),
+      accountEmail: Text('test@qq.com'),
+      currentAccountPicture: CircleAvatar(
+        backgroundImage: NetworkImage(
+            'https://p9-passport.byteacctimg.com/img/user-avatar/8b472f29b528ad097a78d288ef895900~200x200.awebp'),
+      ),
+    );
+  }
+}
