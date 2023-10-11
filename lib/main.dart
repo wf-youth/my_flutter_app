@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import './movie/list/index.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -16,12 +18,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         primaryColor: const Color.fromARGB(255, 229, 115, 115),
-        fontFamily: 'Georgia',
+        // fontFamily: 'Georgia',
         textTheme: const TextTheme(
-          displayLarge: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-          titleLarge: TextStyle(fontSize: 28, fontStyle: FontStyle.italic),
-          bodyMedium: TextStyle(fontSize: 14, fontFamily: 'Hind'),
-        ),
+            displayLarge: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+            titleLarge: TextStyle(fontSize: 28, fontStyle: FontStyle.italic),
+            bodyMedium: TextStyle(
+              fontSize: 14,
+            ),
+            titleMedium: TextStyle(textBaseline: TextBaseline.alphabetic)),
       ),
       home: const MyHomePage(),
     );
@@ -39,45 +43,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomeState extends State<MyHomePage> {
   static final _controller = PageController(initialPage: 0);
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-        length: 3,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('home'),
-            actions: <Widget>[
-              IconButton(onPressed: () {}, icon: const Icon(Icons.search))
-            ],
-          ),
-          drawer: const Drawer(
-            child: MyDrawer(),
-          ),
-          bottomNavigationBar: const BottomNavBar(),
-          body: PageView(
-            onPageChanged: (value) {},
-            // 设置控制器
-            controller: _controller,
-            // 设置子项集
-            children: const [
-              Text('首页'),
-              Text('消息'),
-              Text('我的'),
-            ],
-          ),
-        ));
-  }
-}
-
-class BottomNavBar extends StatefulWidget {
-  const BottomNavBar({super.key});
-
-  @override
-  State<BottomNavBar> createState() => _BottomNavBarState();
-}
-
-class _BottomNavBarState extends State<BottomNavBar> {
   int currentIndex = 0;
 
   void changeCurrent(int value) {
@@ -88,28 +53,54 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: (value) {
-        changeCurrent(value);
-        _MyHomeState._controller.jumpToPage(currentIndex);
-      },
-      type: BottomNavigationBarType.fixed,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: '首页',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.article),
-          label: '列表',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_box_outlined),
-          label: '我的',
-        )
-      ],
-    );
+    return DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('首页'),
+            actions: <Widget>[
+              IconButton(onPressed: () {}, icon: const Icon(Icons.search))
+            ],
+          ),
+          drawer: const Drawer(
+            child: MyDrawer(),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: currentIndex,
+            onTap: (value) {
+              changeCurrent(value);
+              _MyHomeState._controller.jumpToPage(currentIndex);
+            },
+            type: BottomNavigationBarType.fixed,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: '首页',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.article),
+                label: '列表',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.account_box_outlined),
+                label: '我的',
+              )
+            ],
+          ),
+          body: PageView(
+            onPageChanged: (value) {
+              changeCurrent(value);
+            },
+            // 设置控制器
+            controller: _controller,
+            // 设置子项集
+            children: const [
+              MovieList(),
+              Text('消息'),
+              Text('我的'),
+            ],
+          ),
+        ));
   }
 }
 
